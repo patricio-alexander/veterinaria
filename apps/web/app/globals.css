@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+@import "@heroui/styles";
+
+.fc-day-today {
+  background-color: #e0f2fe !important;
+}

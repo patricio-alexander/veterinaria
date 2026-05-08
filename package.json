@@ -1,0 +1,31 @@
+{
+  "name": "reservacion-veterinaria",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "packageManager": "npm@11.11.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "turbo": "^2.9.6"
+  },
+  "dependencies": {
+    "@bryntum/calendar": "npm:@bryntum/calendar-trial@^7.2.4",
+    "@bryntum/calendar-react": "^7.2.4",
+    "date-fns": "^4.1.0",
+    "sonner": "^2.0.7"
+  }
+}
