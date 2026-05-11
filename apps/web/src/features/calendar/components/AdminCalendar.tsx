@@ -48,7 +48,7 @@ import { usePets } from "../../pets/hooks/usePets";
 import { useDebounce } from "@uidotdev/usehooks";
 import { getAppointmnet } from "../services/calendar.service";
 import { toast } from "sonner";
-import { useAppointments } from "../hooks/useAppointments";
+import { useEvents } from "../hooks/useEvents";
 import { EventClickArg } from "@fullcalendar/core/index.js";
 import { useAddAppointment } from "../hooks/useAddAppointment";
 import { useEditAppointment } from "../hooks/useEditAppointment";
@@ -120,9 +120,7 @@ export default function AdminCalendar() {
     search: debounceSeacrh,
   });
 
-  const { data: events, isLoading: isLoadingEvents } = useAppointments(
-    params.id,
-  );
+  const { data: events, isLoading: isLoadingEvents } = useEvents(params.id);
 
   const defaultValues = {
     start: {
@@ -192,11 +190,10 @@ export default function AdminCalendar() {
           status: "scheduled",
           title: form.title,
           description: form.description,
-          patient_id: form.patient,
-          veterinarian_id: params.id,
-          reminder_sent: true,
-          start_date_appointment: form.start,
-          end_date_appointment: form.end,
+          patientId: form.patient,
+          veterinarianId: params.id,
+          startDateAppointment: form.start,
+          endDateAppointment: form.end,
           cost: form.cost,
         },
         {
@@ -217,11 +214,10 @@ export default function AdminCalendar() {
           status: "rescheduled",
           title: form.title,
           description: form.description,
-          patient_id: form.patient,
-          veterinarian_id: params.id,
-          reminder_sent: true,
-          start_date_appointment: form.start,
-          end_date_appointment: form.end,
+          patientId: form.patient,
+          veterinarianId: params.id,
+          startDateAppointment: form.start,
+          endDateAppointment: form.end,
           cost: form.cost,
         },
         id: appointmentId as number,

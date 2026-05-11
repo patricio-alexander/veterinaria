@@ -1,14 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addAppointment } from "../services/calendar.service";
+import { removeUnavailableDate } from "../services/calendar.service";
 
-export const useAddAppointment = () => {
+export const useRemoveRemoveUnavailable = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: addAppointment,
 
+  return useMutation({
+    mutationFn: removeUnavailableDate,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
     },
   });
 };
-

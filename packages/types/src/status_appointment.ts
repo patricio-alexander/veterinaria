@@ -3,4 +3,5 @@ export type StatusAppointment =
   | "rescheduled"
   | "pending"
   | "completed"
-  | "cancelled";
+  | "cancelled"
+  | "unavailable";

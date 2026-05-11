@@ -1,16 +1,102 @@
 import { supabase } from "@/lib/supabase/client";
 import { StatusAppointment } from "@reservacion-veterinaria/types";
 
+type UnavailableDates = {
+  reason: string;
+  startDate: string;
+  endDate: string;
+};
+
 type Appointment = {
   status: StatusAppointment;
   title: string;
   description?: string;
-  patient_id: string;
-  veterinarian_id: string;
-  reminder_sent: boolean;
-  start_date_appointment: string;
-  end_date_appointment: string;
+  patientId: string;
+  veterinarianId: string;
+  startDateAppointment: string;
+  endDateAppointment: string;
   cost: number;
+};
+
+export const removeUnavailableDate = async (id: string) => {
+  const { error } = await supabase
+    .from("unavailable_dates")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const getOneUnavailableDate = async (id: number) => {
+  const { data, error } = await supabase
+    .from("unavailable_dates")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+  return {
+    id: data.id,
+    startDate: data.start_date,
+    endDate: data.end_date,
+    reason: data.reason,
+    veterinarianId: data.veterinarian_id,
+  };
+};
+
+export const editUnavailableDate = async ({
+  data,
+  id,
+}: {
+  data: UnavailableDates;
+  id: number;
+}) => {
+  const { error } = await supabase
+    .from("unavailable_dates")
+    .update({
+      start_date: data.startDate,
+      end_date: data.endDate,
+      reason: data.reason,
+    })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const getUnavailablesDates = async (veterinarianId: string) => {
+  const { data, error } = await supabase
+    .from("unavailable_dates")
+    .select("")
+    .eq("veterinarian_id", veterinarianId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const addUnavailableDates = async (data: {
+  start: string;
+  end: string;
+  veterinarianId: string;
+  reason: string;
+}) => {
+  const { error } = await supabase.from("unavailable_dates").insert({
+    start_date: data.start,
+    end_date: data.end,
+    veterinarian_id: data.veterinarianId,
+    reason: data.reason,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
 };
 
 export const getAppointmnet = async (appointmentId: number) => {
@@ -37,17 +123,43 @@ export const getAppointmnet = async (appointmentId: number) => {
   };
 };
 
-export const getAppointments = async (veterinarianId: string) => {
-  const { data, error } = await supabase
+export const getEvents = async (veterinarianId: string) => {
+  const { data: appointments, error } = await supabase
     .from("appointments")
     .select()
     .eq("veterinarian_id", veterinarianId);
+
+  const { data: unavailableDates, error: unavailableDatesError } =
+    await supabase
+      .from("unavailable_dates")
+      .select()
+      .eq("veterinarian_id", veterinarianId);
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data;
+  if (unavailableDatesError) {
+    throw new Error(unavailableDatesError.message);
+  }
+
+  return [
+    ...appointments.map((app) => ({
+      id: app.id,
+      title: app.title,
+      status: app.status,
+      start: app.start_date_appointment,
+      end: app.end_date_appointment,
+    })),
+
+    ...unavailableDates.map((app) => ({
+      id: app.id,
+      title: "No disponible",
+      status: "unavailable",
+      start: app.start_date,
+      end: app.end_date,
+    })),
+  ];
 };
 
 export const changeStatusAppointment = async ({
@@ -76,31 +188,27 @@ export const editAppointment = async ({
 }) => {
   const {
     status,
-    patient_id,
-    veterinarian_id,
+    patientId,
+    veterinarianId,
     title,
     description,
-    reminder_sent,
-    start_date_appointment,
-    end_date_appointment,
+    startDateAppointment,
+    endDateAppointment,
     cost,
   } = data;
-
   const { error } = await supabase
     .from("appointments")
     .update({
       title,
       description,
       status,
-      patient_id,
-      veterinarian_id,
-      reminder_sent,
-      start_date_appointment,
-      end_date_appointment,
+      patient_id: patientId,
+      veterinarian_id: veterinarianId,
+      start_date_appointment: startDateAppointment,
+      end_date_appointment: endDateAppointment,
       cost,
     })
     .eq("id", id);
-
   if (error) {
     throw new Error(error.message);
   }
@@ -109,28 +217,24 @@ export const editAppointment = async ({
 export const addAppointment = async (data: Appointment) => {
   const {
     status,
-    patient_id,
-    veterinarian_id,
+    patientId,
+    veterinarianId,
     title,
     description,
-    reminder_sent,
-    start_date_appointment,
-    end_date_appointment,
+    startDateAppointment,
+    endDateAppointment,
     cost,
   } = data;
-
   const { error } = await supabase.from("appointments").insert({
     title,
     description,
     status,
-    patient_id,
-    veterinarian_id,
-    reminder_sent,
-    start_date_appointment,
-    end_date_appointment,
+    patient_id: patientId,
+    veterinarian_id: veterinarianId,
+    start_date_appointment: startDateAppointment,
+    end_date_appointment: endDateAppointment,
     cost,
   });
-
   if (error) {
     throw new Error(error.message);
   }

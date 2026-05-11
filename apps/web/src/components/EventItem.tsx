@@ -36,13 +36,17 @@ export default function EventItem(eventInfo: EventContentArg) {
       bg: "bg-yellow-50 border-l-4 border-yellow-500",
       text: "text-yellow-700",
     },
+    unavailable: {
+      bg: "bg-neutral-50 border-l-4 border-neutral-500",
+      text: "text-neutral-700",
+    },
   };
 
   const { bg, text } =
     color[eventInfo.event.extendedProps?.status as StatusAppointment];
 
   return (
-    <div className={`w-full p-1 ${bg} rounded-r-md`}>
+    <div className={`w-full p-1 ${bg} rounded-r-md cursor-pointer`}>
       <div className={`flex items-center gap-1 ${text} text-xs font-medium`}>
         <Clock size={12} />
         <span>{timeDisplay}</span>

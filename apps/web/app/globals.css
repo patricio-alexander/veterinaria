@@ -5,3 +5,11 @@
 .fc-day-today {
   background-color: #e0f2fe !important;
 }
+
+.fc-event {
+  border: none;
+}
+
+.fc-h-event {
+  background-color: transparent !important;
+}
