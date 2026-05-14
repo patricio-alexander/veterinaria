@@ -13,3 +13,7 @@
 .fc-h-event {
   background-color: transparent !important;
 }
+
+.button--primary {
+  @apply bg-zinc-900 text-zinc-50 rounded-xl font-medium text-sm hover:opacity-85 transition-opacity;
+}

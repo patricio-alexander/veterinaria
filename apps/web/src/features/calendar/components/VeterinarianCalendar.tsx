@@ -13,6 +13,7 @@ import FullCalendar from "@fullcalendar/react";
 import {
   Button,
   Calendar,
+  Chip,
   DateField,
   DatePicker,
   FieldError,
@@ -50,6 +51,8 @@ import {
 } from "../services/calendar.service";
 import { useEditUnavailableDate } from "../hooks/useEditUnavailableDate";
 import { useRemoveRemoveUnavailable } from "../hooks/useRemoveUnavailableDate";
+import { appointmentTypes } from "@/src/constants/appointment-type";
+import { AppointmentType } from "@reservacion-veterinaria/types";
 
 const schemaUnavailableDates = z
   .object({
@@ -613,11 +616,33 @@ export default function VeterinarianCalendar() {
                       </div>
                     </div>
 
-                    <div className="bg-default-100 p-3 rounded-lg">
-                      <Label className="text-default-500 text-xs">Costo</Label>
-                      <p className="text-lg font-bold text-success">
-                        ${appointment?.cost || 0}
-                      </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-default-100 p-3 rounded-lg">
+                        <Label className="text-default-500 text-xs">
+                          Costo
+                        </Label>
+                        <p className="text-lg font-bold text-success">
+                          ${appointment?.cost || 0}
+                        </p>
+                      </div>
+
+                      <div className="bg-default-100 p-3 rounded-lg">
+                        <Label className="text-default-500 text-xs">Tipo</Label>
+                        <div>
+                          <Chip
+                            variant="soft"
+                            color={
+                              appointmentTypes[
+                                appointment?.type as AppointmentType
+                              ]?.color ?? "default"
+                            }
+                          >
+                            {appointmentTypes[
+                              appointment?.type as AppointmentType
+                            ]?.label ?? "Ninguno"}
+                          </Chip>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}

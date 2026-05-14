@@ -16,6 +16,7 @@ type Appointment = {
   startDateAppointment: string;
   endDateAppointment: string;
   cost: number;
+  type: string;
 };
 
 export const removeUnavailableDate = async (id: string) => {
@@ -120,6 +121,7 @@ export const getAppointmnet = async (appointmentId: number) => {
     start: data.start_date_appointment,
     end: data.end_date_appointment,
     cost: data.cost,
+    type: data.type,
   };
 };
 
@@ -150,6 +152,7 @@ export const getEvents = async (veterinarianId: string) => {
       status: app.status,
       start: app.start_date_appointment,
       end: app.end_date_appointment,
+      type: app.type,
     })),
 
     ...unavailableDates.map((app) => ({
@@ -158,6 +161,7 @@ export const getEvents = async (veterinarianId: string) => {
       status: "unavailable",
       start: app.start_date,
       end: app.end_date,
+      type: null,
     })),
   ];
 };
@@ -195,6 +199,7 @@ export const editAppointment = async ({
     startDateAppointment,
     endDateAppointment,
     cost,
+    type,
   } = data;
   const { error } = await supabase
     .from("appointments")
@@ -207,6 +212,7 @@ export const editAppointment = async ({
       start_date_appointment: startDateAppointment,
       end_date_appointment: endDateAppointment,
       cost,
+      type,
     })
     .eq("id", id);
   if (error) {
@@ -224,6 +230,7 @@ export const addAppointment = async (data: Appointment) => {
     startDateAppointment,
     endDateAppointment,
     cost,
+    type,
   } = data;
   const { error } = await supabase.from("appointments").insert({
     title,
@@ -234,6 +241,7 @@ export const addAppointment = async (data: Appointment) => {
     start_date_appointment: startDateAppointment,
     end_date_appointment: endDateAppointment,
     cost,
+    type,
   });
   if (error) {
     throw new Error(error.message);

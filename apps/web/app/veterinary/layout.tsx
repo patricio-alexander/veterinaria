@@ -8,6 +8,10 @@ import { ReactNode } from "react";
 export default function Layout({ children }: { children: ReactNode }) {
   const { user } = useAuthStore();
 
+  if (!user) {
+    redirect("/auth/login");
+  }
+
   if (user?.role == "admin") {
     redirect("/admin/dashboard");
   }

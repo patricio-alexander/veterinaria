@@ -43,14 +43,14 @@ export const editPet = async (pet: PetsFormData, id: string) => {
 
   if (photo instanceof File) {
     const { data: dataUpload, error: errorUpload } = await supabase.storage
-      .from("pets")
+      .from("avatars")
       .upload(`${id}/profile.jpg`, photo, {
         upsert: true,
       });
 
     const {
       data: { publicUrl },
-    } = supabase.storage.from("pets").getPublicUrl(dataUpload.path);
+    } = supabase.storage.from("avatars").getPublicUrl(dataUpload.path);
 
     await supabase
       .from("patients")
@@ -92,7 +92,7 @@ export const addPet = async (pet: PetsFormData) => {
 
   if (photo) {
     const { data: upload, error: errorUpload } = await supabase.storage
-      .from("pets")
+      .from("avatars")
       .upload(`${data?.id}/profile.jpg`, photo);
 
     if (errorUpload) {
@@ -101,7 +101,7 @@ export const addPet = async (pet: PetsFormData) => {
 
     const {
       data: { publicUrl },
-    } = supabase.storage.from("pets").getPublicUrl(upload.path);
+    } = supabase.storage.from("avatars").getPublicUrl(upload.path);
 
     const { error: errorUpdate } = await supabase
       .from("patients")

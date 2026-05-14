@@ -2,7 +2,6 @@
 
 import { Button } from "@heroui/react";
 import { Calendar, Pencil, Plus, Trash } from "lucide-react";
-import Link from "next/link";
 import { PageContainer } from "@/src/components/PageContainer";
 import VeterinarianTable from "@/src/features/veterinarians/components/VeterinarianTable";
 import { useRouter } from "next/navigation";
@@ -15,12 +14,10 @@ export default function VeterinaryPage() {
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <h1 className="text-2xl font-bold">Veterinarios</h1>
-          <Link href="/admin/veterinary/new">
-            <Button>
-              <Plus />
-              Nuevo Veterinario
-            </Button>
-          </Link>
+          <Button onPress={() => router.push("/admin/veterinary/new")}>
+            <Plus />
+            Nuevo Veterinario
+          </Button>
         </div>
         <VeterinarianTable
           actionButtons={[

@@ -4,7 +4,6 @@ import { Avatar, Chip } from "@heroui/react";
 import {
   User,
   CreditCard,
-  Plus,
   UserPlus,
   Calendar,
   Bone,
@@ -13,10 +12,10 @@ import {
 } from "lucide-react";
 import { useTotalPets } from "../hooks/useTotalPets";
 import { useTotalCustomers } from "../hooks/useTotalCustomers";
-import { use } from "react";
 import { useTotalTodayAppointments } from "../hooks/useTotalTodayAppointments";
 import { useMontlyIncome } from "../hooks/useMonthlyIncome";
 import { useRouter } from "next/navigation";
+import { initialName } from "@/src/utilities/initials-name";
 
 interface StatCardProps {
   title: string;
@@ -79,7 +78,11 @@ function UserWelcome() {
   return (
     <div className="bg-content1 border border-default-200 rounded-xl p-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <Avatar name={name} size="md" />
+        <Avatar>
+          <Avatar.Image alt="John Doe" src={user?.email} />
+          <Avatar.Fallback>{initialName(name)}</Avatar.Fallback>
+        </Avatar>
+
         <div>
           <p className="font-medium">Bienvenido, {name}</p>
           <p className="text-sm text-default-500">{user?.email}</p>

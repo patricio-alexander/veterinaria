@@ -13,7 +13,8 @@ export const useChangeStatusAppointment = () => {
       status: StatusAppointment;
     }) => changeStatusAppointment({ appointmentId, status }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      queryClient.invalidateQueries({ queryKey: ["events"] });
     },
   });
 };
+

@@ -1,7 +1,7 @@
-import { Avatar, EmptyState, Input, Pagination, Table } from "@heroui/react";
+import { EmptyState, Input, Pagination, Table } from "@heroui/react";
 import { useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
-import { Inbox, Pencil } from "lucide-react";
+import { Inbox } from "lucide-react";
 import {
   createColumnHelper,
   flexRender,
@@ -9,40 +9,40 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import ActionsButtons, {
+  type ButtonAction,
+} from "@/src/components/ActionsButton";
+import { useClinicalHistories } from "../hooks/useClinicalHistories";
+import { useParams } from "next/navigation";
 
-import { OwnerPets } from "@reservacion-veterinaria/types";
-import { useOwnerPets } from "../hooks/useOwnerPets";
-import Loader from "@/src/components/Loader";
-import ActionsButtons, { ButtonAction } from "@/src/components/ActionsButton";
+type ClinicalHistory = {
+  id: string;
+  reason: string;
+  diagnosis: string;
+  treatment: string;
+  prescribed_medications: string;
+  responsible_veterinarian_id: string;
+  patientId: string;
+};
 
-type OwnerPetsTableProps = {
+type VeterinarianTableProps = {
   actionButtons: ButtonAction[];
 };
 
-export default function OwnerPetsTable({ actionButtons }: OwnerPetsTableProps) {
-  const columnHelper = createColumnHelper<OwnerPets>();
+export default function TableClinicalHistory({
+  actionButtons,
+}: VeterinarianTableProps) {
+  const params = useParams<{ petId: string }>();
+
+  const columnHelper = createColumnHelper<ClinicalHistory>();
   const columns = [
-    columnHelper.accessor("profiles.photo", {
-      cell: (info) => (
-        <Avatar size="sm">
-          <Avatar.Image src={info?.getValue()} />
-          <Avatar.Fallback>
-            {info?.row.original?.profiles?.name
-              ?.split(" ")
-              .map((n: string) => n[0])
-              .join("")}
-          </Avatar.Fallback>
-        </Avatar>
-      ),
-
-      header: "Foto",
+    columnHelper.accessor("reason", {
+      header: "Razon",
     }),
 
-    columnHelper.accessor("profiles.name", {
-      header: "Nombre",
-    }),
+    columnHelper.accessor("diagnosis", { header: "Diagnóstico" }),
 
-    columnHelper.accessor("profiles.email", { header: "Correo" }),
+    columnHelper.accessor("treatment", { header: "Tratamiento" }),
 
     columnHelper.accessor("id", {
       header: "Acciones",
@@ -52,6 +52,9 @@ export default function OwnerPetsTable({ actionButtons }: OwnerPetsTableProps) {
             ...btn,
             onClick: () => btn.onClick(info.row.original.id),
           }))}
+          // onEdit={(router) => {
+
+          // }}
         />
       ),
     }),
@@ -71,14 +74,15 @@ export default function OwnerPetsTable({ actionButtons }: OwnerPetsTableProps) {
     setPage((p) => Math.max(1, p - 1));
   };
 
-  const { data: ownerpets, isLoading } = useOwnerPets({
+  const { data: clinicalHistories, isLoading } = useClinicalHistories({
     search: debouncedSearchTerm,
     page,
+    petId: params.petId,
   });
 
   const table = useReactTable({
     columns,
-    data: (ownerpets?.data as OwnerPets[]) ?? [],
+    data: (clinicalHistories?.data as ClinicalHistory[]) ?? [],
     initialState: {
       pagination: {
         pageSize: 10,
@@ -90,22 +94,18 @@ export default function OwnerPetsTable({ actionButtons }: OwnerPetsTableProps) {
   });
 
   const pages = Array.from(
-    { length: ownerpets?.totalPages ?? 0 },
+    { length: clinicalHistories?.totalPages ?? 0 },
     (_, i) => i + 1,
   );
 
-  if (isLoading) {
-    return <Loader />;
-  }
-
   return (
     <>
-      <div className="flex justify-between">
+      <div className="flex justify-between mb-4">
         <Input
-          placeholder="Buscar dueños..."
+          placeholder="Buscar historial por razón"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-xl mb-4"
+          className="w-xl"
         />
       </div>
       <Table>
@@ -148,7 +148,7 @@ export default function OwnerPetsTable({ actionButtons }: OwnerPetsTableProps) {
           <Table.Footer>
             <Pagination size="sm">
               <Pagination.Summary>
-                {ownerpets?.total ?? 0} results
+                {clinicalHistories?.total ?? 0} results
               </Pagination.Summary>
               <Pagination.Content>
                 <Pagination.Item>

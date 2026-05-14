@@ -2,44 +2,52 @@
 import { useEffect } from "react";
 import { useAuthStore } from "../store/auth.store";
 import { supabase } from "@/lib/supabase/client";
+import { Spinner } from "@heroui/react";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { setUser, setSession, setIsLoading } = useAuthStore();
+  const { setUser, setSession, setIsLoading, isLoading, user } = useAuthStore();
 
   useEffect(() => {
-    supabase.auth
-      .getSession()
-      .then(async ({ data: { session } }) => {
-        const { data } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session?.user.id)
-          .single();
-        setUser(session?.user ? { ...session?.user, role: data?.role } : null);
-        setSession(session);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setIsLoading(false);
-      const { data } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", session?.user.id)
-        .single();
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        setUser(null);
+        setSession(null);
+        setIsLoading(false);
+        return;
+      }
 
-      setUser(session?.user ? { ...session?.user, role: data?.role } : null);
+      if (session) {
+        supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single()
+          .then(({ data, error }) => {
+            if (error) {
+              console.error(error);
+            }
+            if (data) {
+              setUser({ ...session.user, role: data?.role });
+              setSession(session);
+            }
 
-      setSession(session);
-      setIsLoading(false);
+            setIsLoading(false);
+          });
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  if (isLoading && !user) {
+    return (
+      <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+        <Spinner />
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }

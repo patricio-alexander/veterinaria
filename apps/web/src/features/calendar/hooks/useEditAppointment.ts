@@ -6,7 +6,8 @@ export const useEditAppointment = () => {
   return useMutation({
     mutationFn: editAppointment,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      queryClient.invalidateQueries({ queryKey: ["events"] });
     },
   });
 };
+

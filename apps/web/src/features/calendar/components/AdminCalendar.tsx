@@ -39,6 +39,7 @@ import {
   ListBox,
   NumberField,
   Avatar,
+  Select,
 } from "@heroui/react";
 import Loader from "@/src/components/Loader";
 import { Controller, useForm } from "react-hook-form";
@@ -71,6 +72,8 @@ const schemaAppointment = z
     title: z.string().min(1, "Se quiere título"),
     description: z.string().optional(),
     patient: z.string().min(1, "Seleccione la mascota"),
+
+    type: z.string().min(1, "Seleccione el tipo de consulta"),
     cost: z.number().min(0, "Se require el costo"),
   })
   .transform((val) => {
@@ -94,8 +97,37 @@ const schemaAppointment = z
       description: val.description,
       patient: val.patient,
       cost: val.cost,
+      type: val.type,
     };
   });
+
+const APPOINTMENTS_TYPE = [
+  {
+    id: 1,
+    key: "general_consultation",
+    value: "Consulta general",
+  },
+  {
+    id: 2,
+    key: "vaccination",
+    value: "Vacunación",
+  },
+  {
+    id: 3,
+    key: "pet_grooming",
+    value: "Estética",
+  },
+  {
+    id: 4,
+    key: "surgery",
+    value: "Cirugía",
+  },
+  {
+    id: 5,
+    key: "emergency",
+    value: "Urgencia",
+  },
+];
 
 export type FormAppointment = z.infer<typeof schemaAppointment>;
 
@@ -135,6 +167,7 @@ export default function AdminCalendar() {
     description: "",
     patient: "",
     cost: 0,
+    type: "",
   };
 
   const {
@@ -195,6 +228,7 @@ export default function AdminCalendar() {
           startDateAppointment: form.start,
           endDateAppointment: form.end,
           cost: form.cost,
+          type: form.type,
         },
         {
           onSuccess: () => {
@@ -219,6 +253,7 @@ export default function AdminCalendar() {
           startDateAppointment: form.start,
           endDateAppointment: form.end,
           cost: form.cost,
+          type: form.type,
         },
         id: appointmentId as number,
       },
@@ -265,6 +300,7 @@ export default function AdminCalendar() {
       description: appointment?.description,
       patient: appointment?.patient,
       cost: appointment?.cost,
+      type: appointment?.type,
     };
 
     reset(appointmentData);
@@ -550,8 +586,43 @@ export default function AdminCalendar() {
                               <FieldError>{errors.cost?.message}</FieldError>
                             </NumberField>
                           )}
-                        />{" "}
+                        />
                       </div>
+
+                      <Controller
+                        name="type"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            placeholder="Selecciona el tipo de consulta"
+                            value={field.value}
+                            onChange={field.onChange}
+                            isInvalid={!!errors.type?.message}
+                          >
+                            <Label>Tipo de consulta</Label>
+                            <Select.Trigger>
+                              <Select.Value />
+                              <Select.Indicator />
+                            </Select.Trigger>
+                            <Select.Popover>
+                              <ListBox>
+                                {APPOINTMENTS_TYPE.map((a) => (
+                                  <ListBox.Item
+                                    id={a.key}
+                                    textValue={a.value}
+                                    key={a.key}
+                                  >
+                                    {a.value}
+                                    <ListBox.ItemIndicator />
+                                  </ListBox.Item>
+                                ))}
+                              </ListBox>
+                            </Select.Popover>
+
+                            <FieldError>{errors.type?.message}</FieldError>
+                          </Select>
+                        )}
+                      />
 
                       <Controller
                         name="title"
@@ -597,41 +668,43 @@ export default function AdminCalendar() {
                     </div>
                   </Modal.Body>
                   <Modal.Footer>
-                    {isEdit && statusAppointment !== "cancelled" ? (
-                      <Button
-                        variant="danger-soft"
-                        onClick={() => {
-                          changeStatusAppointment.mutate(
-                            { status: "cancelled", appointmentId },
-                            {
-                              onSuccess: () => {
-                                toast.success("Cita cancelda con éxito");
+                    {isEdit ? (
+                      statusAppointment !== "cancelled" ? (
+                        <Button
+                          variant="danger-soft"
+                          onClick={() => {
+                            changeStatusAppointment.mutate(
+                              { status: "cancelled", appointmentId },
+                              {
+                                onSuccess: () => {
+                                  toast.success("Cita cancelda con éxito");
+                                },
                               },
-                            },
-                          );
-                          closeDialog();
-                        }}
-                      >
-                        Cancelar cita
-                      </Button>
-                    ) : (
-                      <Button
-                        className="bg-green-50 text-green-600"
-                        onClick={() => {
-                          changeStatusAppointment.mutate(
-                            { status: "scheduled", appointmentId },
-                            {
-                              onSuccess: () => {
-                                toast.success("Cita reactivada con éxito");
+                            );
+                            closeDialog();
+                          }}
+                        >
+                          Cancelar cita
+                        </Button>
+                      ) : (
+                        <Button
+                          className="bg-green-50 text-green-600"
+                          onClick={() => {
+                            changeStatusAppointment.mutate(
+                              { status: "scheduled", appointmentId },
+                              {
+                                onSuccess: () => {
+                                  toast.success("Cita reactivada con éxito");
+                                },
                               },
-                            },
-                          );
-                          closeDialog();
-                        }}
-                      >
-                        Reactivar
-                      </Button>
-                    )}
+                            );
+                            closeDialog();
+                          }}
+                        >
+                          Reactivar
+                        </Button>
+                      )
+                    ) : null}
 
                     <Button variant="secondary" onClick={closeDialog}>
                       Cerrar

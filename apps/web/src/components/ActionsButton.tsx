@@ -39,7 +39,7 @@ export default function ActionsButtons({ buttons }: ActionsButtonsProps) {
         <Dropdown.Menu onAction={handleAction}>
           <Dropdown.Section>
             <Header>Acciones</Header>
-            {buttons.map((b) => (
+            {buttons?.map((b) => (
               <Dropdown.Item
                 key={b.key}
                 id={b.key}

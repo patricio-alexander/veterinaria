@@ -17,9 +17,10 @@ import {
   Stethoscope,
   Calendar,
   LucideIcon,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { UserRole } from "@reservacion-veterinaria/types";
 
 interface NavItem {
@@ -32,13 +33,14 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuthStore();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
 
-    router.replace("/auth/login");
-
-    //    window.location.href = "/auth/login";
+    if (!error) {
+      router.replace("/auth/login");
+    }
   };
 
   const navItemsByRole: Record<UserRole, NavItem[]> = {
@@ -47,6 +49,7 @@ export function Header() {
       { label: "Dueños", href: "/admin/owners_pets", icon: Users },
       { label: "Mascotas", href: "/admin/pets", icon: Dog },
       { label: "Veterinarios", href: "/admin/veterinary", icon: Stethoscope },
+      { label: "Chats", href: "/admin/chat", icon: MessageCircle },
     ],
 
     veterinarian: [
@@ -64,6 +67,14 @@ export function Header() {
   };
 
   const navItems = navItemsByRole[user?.role as UserRole];
+
+  const linkClass = (href: string) =>
+    `flex items-center gap-2 px-3 py-2 rounded-lg transition-colors
+     ${
+       pathname === href
+         ? "bg-default-100 text-zinc-700 font-medium "
+         : "text-zinc-500 hover:text-zinc hover:bg-zinc-50"
+     }`;
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -89,7 +100,7 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-2 text-default-600 hover:text-primary transition-colors"
+                className={linkClass(item.href)}
               >
                 <item.icon size={18} />
                 {item.label}

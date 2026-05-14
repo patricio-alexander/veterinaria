@@ -1,8 +1,14 @@
 import { EventContentArg } from "@fullcalendar/core/index.js";
-import { StatusAppointment } from "@reservacion-veterinaria/types";
+import { Chip } from "@heroui/react";
+import {
+  AppointmentType,
+  StatusAppointment,
+} from "@reservacion-veterinaria/types";
 import { format } from "date-fns";
 import { es } from "date-fns/locale/es";
 import { Clock } from "lucide-react";
+import { appointmentTypes } from "../constants/appointment-type";
+import { statusAppointment } from "../constants/appointment-status";
 
 export default function EventItem(eventInfo: EventContentArg) {
   const startDate = eventInfo.event.start;
@@ -15,35 +21,13 @@ export default function EventItem(eventInfo: EventContentArg) {
 
   const timeDisplay = hourEnd ? `${hourStart} - ${hourEnd}` : hourStart;
 
-  const color: Record<StatusAppointment, { bg: string; text: string }> = {
-    scheduled: {
-      bg: "bg-blue-50 border-l-4 border-blue-500",
-      text: "text-blue-700",
-    },
-    rescheduled: {
-      bg: "bg-violet-50 border-l-4 border-violet-500",
-      text: "text-violet-700",
-    },
-    cancelled: {
-      bg: "bg-red-50 border-l-4 border-red-500",
-      text: "text-red-700",
-    },
-    completed: {
-      bg: "bg-green-50 border-l-4 border-green-500",
-      text: "text-green-700",
-    },
-    pending: {
-      bg: "bg-yellow-50 border-l-4 border-yellow-500",
-      text: "text-yellow-700",
-    },
-    unavailable: {
-      bg: "bg-neutral-50 border-l-4 border-neutral-500",
-      text: "text-neutral-700",
-    },
-  };
-
   const { bg, text } =
-    color[eventInfo.event.extendedProps?.status as StatusAppointment];
+    statusAppointment[
+      eventInfo.event.extendedProps?.status as StatusAppointment
+    ];
+
+  const badge =
+    appointmentTypes[eventInfo.event.extendedProps?.type as AppointmentType];
 
   return (
     <div className={`w-full p-1 ${bg} rounded-r-md cursor-pointer`}>
@@ -51,9 +35,13 @@ export default function EventItem(eventInfo: EventContentArg) {
         <Clock size={12} />
         <span>{timeDisplay}</span>
       </div>
+
       <div className={`text-sm font-semibold ${text} truncate`}>
         {eventInfo.event.title}
       </div>
+      <Chip variant="soft" color={badge?.color ?? "default"}>
+        {badge?.label ?? "Ninguno"}
+      </Chip>
     </div>
   );
 }
