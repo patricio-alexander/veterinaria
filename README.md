@@ -12,13 +12,88 @@ modulos, que facilita la escabilidad del proyecto a medida que se requieran nuev
 ### Ejemplo
 
 ```
-src/
- ├── features/
- │    ├── auth/
- │    ├── pets/
- │    ├── appointments/
- │    ├── medical-records/
- │    └── billing/
+
+features
+├── auth
+│   └── components
+│       └── LoginForm.tsx
+├── calendar
+│   ├── components
+│   │   ├── AdminCalendar.tsx
+│   │   └── VeterinarianCalendar.tsx
+│   ├── hooks
+│   │   ├── useAddAppointment.ts
+│   │   ├── useAddUnavailableDates.ts
+│   │   ├── useAppointment.ts
+│   │   ├── useChangeStatusAppointment.ts
+│   │   ├── useEditAppointment.ts
+│   │   ├── useEditUnavailableDate.ts
+│   │   ├── useEvents.ts
+│   │   ├── usePetsAndOwners.ts
+│   │   └── useRemoveUnavailableDate.ts
+│   └── services
+│       └── calendar.service.ts
+├── chat
+│   ├── components
+│   │   ├── Chat.tsx
+│   │   ├── ConversationList.tsx
+│   │   └── MessageItem.tsx
+│   ├── hooks
+│   │   ├── useConversations.ts
+│   │   └── useRealtimeChat.ts
+│   └── services
+│       └── chat.services.ts
+├── clinical_history
+│   ├── components
+│   │   ├── ClinicalHistoryForm.tsx
+│   │   └── TableClinicalHistories.tsx
+│   ├── hooks
+│   │   ├── useClinicalHistories.ts
+│   │   ├── useClinicalHistory.ts
+│   │   └── useClinicalHistoryFiles.ts
+│   └── services
+│       └── clinical_history.service.ts
+├── dashboard
+│   ├── components
+│   │   └── DashboardContent.tsx
+│   ├── hooks
+│   │   ├── useMonthlyIncome.ts
+│   │   ├── useTotalCustomers.tsx
+│   │   ├── useTotalPets.tsx
+│   │   └── useTotalTodayAppointments.tsx
+│   └── services
+│       └── dashboard.service.ts
+├── owners_pets
+│   ├── components
+│   │   ├── OwnerPetEditForm.tsx
+│   │   ├── OwnerPetForm.tsx
+│   │   └── OwnerPetsTable.tsx
+│   ├── hooks
+│   │   ├── useOnwerPet.ts
+│   │   └── useOwnerPets.ts
+│   └── services
+│       └── owners_pets.services.ts
+├── pets
+│   ├── components
+│   │   ├── PetsForm.tsx
+│   │   └── TablePets.tsx
+│   ├── hooks
+│   │   ├── usePet.ts
+│   │   └── usePets.ts
+│   └── services
+│       └── pets.service.ts
+└── veterinarians
+    ├── components
+    │   ├── VeterinarianEditForm.tsx
+    │   ├── VeterinarianForm.tsx
+    │   └── VeterinarianTable.tsx
+    ├── hooks
+    │   ├── useVeterinarian.ts
+    │   ├── useVeterinarianByProfileId.ts
+    │   └── useVeterinarians.ts
+    └── services
+        └── veterinarian.service.ts
+
 ```
 
 ## Alcance del proyecto - Módulos
