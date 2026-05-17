@@ -35,6 +35,8 @@ export function Header() {
   const router = useRouter();
   const pathname = usePathname();
 
+  //console.log(user?.id);
+
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
 
@@ -55,6 +57,7 @@ export function Header() {
     veterinarian: [
       { label: "Calendario", href: "/veterinary/calendar", icon: Calendar },
       { label: "Pacientes", href: "/veterinary/pets", icon: Dog },
+      { label: "Chats", href: "/veterinary/chat", icon: MessageCircle },
     ],
 
     owner_pet: [{ label: "Pacientes", href: "/admin/pets", icon: Dog }],
