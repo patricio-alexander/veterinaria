@@ -21,7 +21,7 @@ export const MessageItem = ({
           <p>{hour}</p>
         </div>
         <div
-          className={` ${isOwnMessage ? "bg-zinc-200" : "bg-zinc-50"}  px-2 py-1 rounded-lg break-words`}
+          className={` ${isOwnMessage ? "bg-zinc-300" : "bg-zinc-100"}  px-2 py-1 rounded-lg break-words`}
         >
           <p className="text-base">{message}</p>
         </div>

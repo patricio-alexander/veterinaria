@@ -69,12 +69,12 @@ export default function ClinicalHistoryForm({
         <Card>
           <CardHeader className="flex flex-col gap-1 items-center">
             <p className="text-2xl font-bold mt-2">
-              {initialData ? "Editar expediente" : "Nuevo Expediente Clínico"}
+              {initialData ? "Editar Consulta" : "Nueva Consulta"}
             </p>
             <p className="text-small text-default-500">
               {initialData
-                ? "Edita el expediente clínico"
-                : "Agrega un nuevo expediente clínico"}
+                ? "Editar consulta clínico"
+                : "Agrega un nueva consulta clínico"}
             </p>
           </CardHeader>
           <Separator />

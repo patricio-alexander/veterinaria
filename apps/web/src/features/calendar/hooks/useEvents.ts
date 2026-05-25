@@ -7,4 +7,3 @@ export const useEvents = (veterinarianId: string) => {
     queryFn: async () => await getEvents(veterinarianId),
   });
 };
-

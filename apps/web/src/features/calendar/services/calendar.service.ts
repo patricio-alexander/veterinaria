@@ -30,6 +30,27 @@ export const removeUnavailableDate = async (id: string) => {
   }
 };
 
+export const removeAppointment = async (id: string) => {
+  const { error } = await supabase.from("appointments").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const checkUnavailable = async (date: string) => {
+  const { data, error } = await supabase
+    .from("unavailable_dates")
+    .select()
+    .lte("start_date", date)
+    .gte("end_date", date);
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return !!data.length;
+};
+
 export const getOneUnavailableDate = async (id: number) => {
   const { data, error } = await supabase
     .from("unavailable_dates")

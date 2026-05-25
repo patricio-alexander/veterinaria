@@ -4,7 +4,9 @@ import { PetsFormData } from "../components/PetsForm";
 export const getPet = async (id: string) => {
   const { data, error } = await supabase
     .from("patients")
-    .select("*, owner_patients(id)")
+    .select(
+      "*, species(id, name), owner_patients(id, address, phone, profiles(name, photo, email))",
+    )
     .eq("id", id)
     .single();
 
@@ -14,18 +16,51 @@ export const getPet = async (id: string) => {
 
   return {
     name: data.name,
-    species: data.species,
+    species: {
+      id: data.species.id,
+      name: data.species.name,
+    },
     breed: data.breed,
     sex: data.sex,
     age: data.age,
     weight: data.weight,
     photo: data.profile_photo,
-    owner: data.owner_patients.id,
+    sterilized: data.sterilized,
+    color: data.color,
+    owner: {
+      id: data.owner_patients.id,
+      photo: data.owner_patients.profiles.photo,
+      name: data.owner_patients.profiles.name,
+      address: data.owner_patients.address,
+      phone: data.owner_patients.phone,
+      email: data.owner_patients.profiles.email,
+    },
   };
 };
 
+export const getSpecies = async () => {
+  const { data, error } = await supabase.from("species").select();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { data };
+};
+
 export const editPet = async (pet: PetsFormData, id: string) => {
-  const { name, species, breed, sex, age, weight, owner, photo } = pet;
+  const {
+    name,
+    species,
+    breed,
+    sex,
+    age,
+    weight,
+    owner,
+    photo,
+    color,
+    sterilized,
+  } = pet;
 
   const { error } = await supabase
     .from("patients")
@@ -36,7 +71,8 @@ export const editPet = async (pet: PetsFormData, id: string) => {
       sex,
       age,
       weight,
-
+      color,
+      sterilized,
       owner_id: owner,
     })
     .eq("id", id);
@@ -70,7 +106,18 @@ export const editPet = async (pet: PetsFormData, id: string) => {
 };
 
 export const addPet = async (pet: PetsFormData) => {
-  const { name, species, breed, sex, age, weight, owner, photo } = pet;
+  const {
+    name,
+    species,
+    breed,
+    sex,
+    age,
+    weight,
+    owner,
+    photo,
+    color,
+    sterilized,
+  } = pet;
 
   const { data, error } = await supabase
     .from("patients")
@@ -82,6 +129,8 @@ export const addPet = async (pet: PetsFormData) => {
       age,
       weight,
       owner_id: owner,
+      color,
+      sterilized,
     })
     .select()
     .single();

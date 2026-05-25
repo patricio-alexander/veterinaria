@@ -14,6 +14,10 @@
   background-color: transparent !important;
 }
 
+.fc .fc-button-primary {
+  @apply rounded-xl text-sm font-medium border-none shadow-none transition-opacity bg-zinc-900 disabled:bg-zinc-900 disabled:cursor-not-allowed hover:bg-zinc-800;
+}
+
 .button--primary {
   @apply bg-zinc-900 text-zinc-50 rounded-xl font-medium text-sm hover:opacity-85 transition-opacity;
 }

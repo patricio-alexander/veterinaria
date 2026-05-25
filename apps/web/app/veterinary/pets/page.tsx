@@ -1,7 +1,7 @@
 "use client";
 
 import { PageContainer } from "@/src/components/PageContainer";
-import TablePets from "@/src/features/pets/components/TablePets";
+import PetsList from "@/src/features/pets/components/PetsList";
 import { FileText, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -21,7 +21,7 @@ export default function PetsPage() {
           {/* </Link> */}
         </div>
       </div>
-      <TablePets
+      <PetsList
         actionButtons={[
           {
             label: "Editar",
@@ -33,9 +33,9 @@ export default function PetsPage() {
             },
           },
           {
-            label: "Historiales",
+            label: "Expediente clinico",
             key: "clinical_history",
-            description: "Ver historiales del paciente/mascota",
+            description: "Ver expediente paciente/mascota",
             icon: <FileText size={18} />,
             onClick: (id: string) => {
               router.push(`/veterinary/pets/clinical_history/${id}`);

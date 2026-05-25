@@ -13,11 +13,13 @@ export default function ConversationList() {
 
   const { data: conversations, isLoading } = useConversations();
 
-  const { openChat, sendMessage, messages, active, activeUsers } =
+  const { openChat, sendMessage, messages, activeUsers, readMessage } =
     useRealtimeChat();
-  const [user, setUser] = useState<{ username: string; photo: string } | null>(
-    null,
-  );
+  const [user, setUser] = useState<{
+    username: string;
+    photo: string;
+    id: string;
+  } | null>(null);
 
   const viewChat = (userB: string) => {
     openChat({ userA: authUser?.id, userB });
@@ -29,7 +31,7 @@ export default function ConversationList() {
   }
 
   return (
-    <div className="grid grid-cols-[320px_1fr] h-screen">
+    <div className="grid grid-cols-[320px_1fr] h-full min-h-0">
       <div className="border-r p-2">
         {conversations?.map((c: any, i: number) => {
           const active = activeUsers.find((a) => a.userId === c.profile_id);
@@ -40,7 +42,11 @@ export default function ConversationList() {
               key={i}
               onClick={() => {
                 viewChat(c.profile_id);
-                setUser({ username: c.username, photo: c.photo });
+                setUser({
+                  username: c.username,
+                  photo: c.photo,
+                  id: c.profile_id,
+                });
               }}
             >
               <Badge.Anchor>
@@ -62,9 +68,9 @@ export default function ConversationList() {
                   {c.last_message}
                 </p>
               </div>
-              {c.unread > 0 && (
-                <span className="bg-blue-400 text-white text-xs px-2 py-1 rounded-full">
-                  {c.unread}
+              {c.total_unread > 0 && (
+                <span className="shrink-0 bg-blue-500 text-white text-xs font-medium min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center">
+                  {c.total_unread > 99 ? "99+" : c.total_unread}
                 </span>
               )}
             </div>
@@ -73,7 +79,14 @@ export default function ConversationList() {
       </div>
       {isOpen && (
         <Chat
-          active={active}
+          onReadLastMessage={(msg) => {
+            readMessage({
+              conversationId: msg.conversationId,
+              messageId: msg.id,
+              userId: authUser?.id as string,
+            });
+          }}
+          active={activeUsers.find((u) => u.userId === user?.id) ? true : false}
           user={user}
           messages={messages}
           onSend={(content) => {

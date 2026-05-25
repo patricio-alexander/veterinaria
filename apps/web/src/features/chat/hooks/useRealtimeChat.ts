@@ -1,8 +1,6 @@
 import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/src/store/auth.store";
-import { Content } from "next/font/google";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { da } from "zod/v4/locales";
+import { useCallback, useEffect, useState } from "react";
 import { getMessages } from "../services/chat.services";
 import { Message } from "@reservacion-veterinaria/types";
 
@@ -11,7 +9,6 @@ export const useRealtimeChat = () => {
   const [messages, setMessages] = useState<Message[] | []>([]);
   const [conversationId, setConversationId] = useState<null | number>(null);
   const { user } = useAuthStore();
-  const [active, setActive] = useState(false);
   const [activeUsers, setUsersActive] = useState<{ userId: string }[] | []>([]);
 
   const sendMessage = useCallback(
@@ -20,7 +17,7 @@ export const useRealtimeChat = () => {
         return;
       }
 
-      const { data, error } = await supabase.from("messages").insert({
+      const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
         content,
         sender_id: user?.id,
@@ -34,6 +31,28 @@ export const useRealtimeChat = () => {
     [channel],
   );
 
+  const readMessage = async ({
+    conversationId,
+    messageId,
+    userId,
+  }: {
+    conversationId: number;
+    messageId: string;
+    userId: string;
+  }) => {
+    const { error } = await supabase
+      .from("conversation_participants")
+      .update({
+        last_message_id: messageId,
+      })
+      .eq("user_id", userId)
+      .eq("conversation_id", conversationId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  };
+
   const openChat = async ({
     userA,
     userB,
@@ -42,9 +61,8 @@ export const useRealtimeChat = () => {
     userB: string;
   }) => {
     if (channel) {
-      await supabase.removeChannel(channel);
+      supabase.removeChannel(channel);
     }
-
     const { data: conversationId, error } = await supabase.rpc(
       "get_or_create_conversation",
       {
@@ -63,25 +81,6 @@ export const useRealtimeChat = () => {
     const newChannel = supabase.channel(`chat:${conversationId}`);
 
     newChannel
-      .on("presence", { event: "sync" }, () => {
-        const state = newChannel.presenceState();
-        const values = Object.entries(state);
-
-        const onlyActiveUsers = values
-          .filter(([key, value]) => value[0]?.userId !== user?.id)
-          .map(([_, value]) => ({ userId: value[0]?.userId }));
-
-        const active = values
-          .map(([key, value], i) => ({
-            userId: value[0]?.userId,
-          }))
-          .find(({ userId }) => userId === userB);
-
-        setUsersActive(onlyActiveUsers);
-
-        setActive(!!active);
-      })
-
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
@@ -98,27 +97,23 @@ export const useRealtimeChat = () => {
               return;
             }
 
-            setMessages((prev) => [
-              ...prev,
-              {
-                content: payload.new.content,
-                isOwnMessage: user?.id === payload.new.sender_id,
-                createdAt: payload.new.created_at,
-                username: data?.name,
-              },
-            ]);
+            if (payload.new.conversation_id === conversationId) {
+              setMessages((prev) => [
+                ...prev,
+                {
+                  conversationId: payload.new.conversation_id,
+                  id: payload.new.id,
+                  content: payload.new.content,
+                  isOwnMessage: user?.id === payload.new.sender_id,
+                  createdAt: payload.new.created_at,
+                  username: data?.name,
+                },
+              ]);
+            }
           })();
         },
       )
-
-      .subscribe(async (status) => {
-        if (status !== "SUBSCRIBED") {
-          return;
-        }
-        await newChannel.track({
-          userId: user?.id,
-        });
-      });
+      .subscribe();
 
     setChannel(newChannel);
   };
@@ -133,10 +128,12 @@ export const useRealtimeChat = () => {
         const msgs = await getMessages(conversationId);
 
         const messages = msgs.map<Message>((m) => ({
+          id: m.id,
           content: m.content,
           isOwnMessage: user?.id === m.sender_id,
           createdAt: m.created_at,
           username: m.profiles?.name,
+          conversationId: m.conversation_id,
         }));
         setMessages(messages);
       } catch (error) {
@@ -147,5 +144,43 @@ export const useRealtimeChat = () => {
     fechtMessage();
   }, [conversationId]);
 
-  return { openChat, sendMessage, messages, active, activeUsers };
+  useEffect(() => {
+    const newChannel = supabase.channel(`presencia`);
+
+    newChannel
+      .on("presence", { event: "sync" }, () => {
+        const state = newChannel.presenceState();
+        const values = Object.entries(state);
+
+        const onlyActiveUsers = values
+          .filter(([key, value]) => value[0]?.userId !== user?.id)
+          .map(([_, value]) => ({ userId: value[0]?.userId }));
+
+        setUsersActive(onlyActiveUsers);
+
+        //setActive(!!active);
+      })
+      .subscribe(async (status) => {
+        if (status !== "SUBSCRIBED") {
+          return;
+        }
+        await newChannel.track({
+          userId: user?.id,
+        });
+      });
+
+    return () => {
+      supabase.removeChannel(newChannel);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [channel]);
+
+  return { openChat, sendMessage, messages, activeUsers, readMessage };
 };

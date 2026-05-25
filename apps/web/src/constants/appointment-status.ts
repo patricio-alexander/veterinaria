@@ -25,7 +25,7 @@ export const statusAppointment: Record<
     text: "text-yellow-700",
   },
   unavailable: {
-    bg: "bg-neutral-50 border-l-4 border-neutral-500",
+    bg: "bg-slate-100 border-l-4 border-neutral-500",
     text: "text-neutral-700",
   },
 };

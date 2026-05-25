@@ -6,5 +6,5 @@ export type Pets = {
   sex: string;
   age: number;
   weight: number;
-  profile_photo: null | string;
+  profilePhoto: null | string;
 };

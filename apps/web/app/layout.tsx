@@ -30,7 +30,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="h-screen flex flex-col">
+      <body className="h-screen flex flex-col bg-slate-50">
         <Toaster richColors position="top-right" />
         <AuthProvider>
           <QueryProvider>{children}</QueryProvider>

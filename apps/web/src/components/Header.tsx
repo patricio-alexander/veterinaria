@@ -48,9 +48,13 @@ export function Header() {
   const navItemsByRole: Record<UserRole, NavItem[]> = {
     admin: [
       { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-      { label: "Dueños", href: "/admin/owners_pets", icon: Users },
+      { label: "Clientes", href: "/admin/owners_pets", icon: Users },
       { label: "Mascotas", href: "/admin/pets", icon: Dog },
-      { label: "Veterinarios", href: "/admin/veterinary", icon: Stethoscope },
+      {
+        label: "Staff/Ususarios",
+        href: "/admin/veterinary",
+        icon: Stethoscope,
+      },
       { label: "Chats", href: "/admin/chat", icon: MessageCircle },
     ],
 

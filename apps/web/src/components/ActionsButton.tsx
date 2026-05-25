@@ -32,8 +32,8 @@ export default function ActionsButtons({ buttons }: ActionsButtonsProps) {
 
   return (
     <Dropdown>
-      <Button isIconOnly aria-label="Menu" variant="secondary">
-        <EllipsisVertical className="outline-none" />
+      <Button isIconOnly aria-label="Menu" variant="secondary" size="sm">
+        <EllipsisVertical className="outline-none" size={10} />
       </Button>
       <Dropdown.Popover>
         <Dropdown.Menu onAction={handleAction}>

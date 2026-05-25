@@ -7,7 +7,16 @@ import { useClinicalHistoryFiles } from "@/src/features/clinical_history/hooks/u
 import { editClinicalHistory } from "@/src/features/clinical_history/services/clinical_history.service";
 import { usePet } from "@/src/features/pets/hooks/usePet";
 import { downloadFile, removeFile } from "@/src/services/storage.service";
-import { Avatar, Button, Card, Chip, Modal, Spinner } from "@heroui/react";
+import { initialName } from "@/src/utilities/initials-name";
+import {
+  Avatar,
+  Button,
+  Card,
+  Chip,
+  Modal,
+  Spinner,
+  Tabs,
+} from "@heroui/react";
 import { Download, Eye, FileText, Pencil, Plus, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -179,73 +188,138 @@ export default function ClinicalHistoryPage() {
 
       <div className="space-y-4 mb-4">
         <div className="flex flex-col sm:flex-row justify-between gap-4">
-          <h1 className="text-2xl font-bold">Historiales clínicos</h1>
-          <Button
-            onPress={() =>
-              router.push(
-                `/veterinary/pets/clinical_history/${params.petId}/new`,
-              )
-            }
-          >
-            <Plus />
-            Nueva historial
-          </Button>
+          <h1 className="text-2xl font-bold">Expediente clínico</h1>
+          <div className="flex gap-2">
+            <Button
+              onPress={() =>
+                router.push(
+                  `/veterinary/pets/clinical_history/${params.petId}/new`,
+                )
+              }
+            >
+              <Plus />
+              Nueva consulta
+            </Button>
+          </div>
         </div>
       </div>
-      <Card className="mb-4 overflow-hidden">
-        <Card.Header className="flex-col items-center gap-3 bg-default-50 border-b border-divider pb-5 pt-5">
-          <Avatar className="size-18">
-            <Avatar.Image alt={pet.data?.name} src={pet.data?.photo} />
-            <Avatar.Fallback>
-              {pet?.data?.name
-                ?.split(" ")
-                .map((n: string) => n[0])
-                .join("")}
-            </Avatar.Fallback>
-          </Avatar>
-          <div className="flex flex-col items-center gap-1">
-            <Card.Title className="text-lg">{pet.data?.name}</Card.Title>
-            <Chip variant="soft" color="accent">
-              {pet.data?.species}
-            </Chip>
-          </div>
-        </Card.Header>
 
-        <Card.Content className="p-0">
-          <div className="grid grid-cols-3 divide-x divide-divider">
-            <div className="flex flex-col items-center gap-1 py-4">
-              <span className="text-xs text-default-400 uppercase tracking-wide">
-                Edad
-              </span>
-              <p className="text-xl font-medium leading-none mt-1">
-                {pet.data?.age}
-                <span className="text-sm font-normal text-default-500 ml-1">
-                  años
+      <div className="grid grid-cols-3 gap-x-3">
+        <Card className="mb-4 overflow-hidden col-span-2">
+          <Card.Header className="flex-col items-center gap-3 bg-default-50 border-b border-divider pb-5 pt-5">
+            <Card.Title>Mascota</Card.Title>
+
+            <Avatar className="size-18">
+              <Avatar.Image alt={pet.data?.name} src={pet.data?.photo} />
+              <Avatar.Fallback>
+                {pet?.data?.name
+                  ?.split("")
+                  .map((n: string) => n[0])
+                  .join("")}
+              </Avatar.Fallback>
+            </Avatar>
+            <div className="flex flex-col items-center gap-1">
+              <Card.Title className="text-lg">{pet.data?.name}</Card.Title>
+              <Chip variant="soft" color="accent">
+                {pet.data?.species.name}
+              </Chip>
+            </div>
+          </Card.Header>
+
+          <Card.Content className="p-0">
+            <div className="grid grid-cols-3 divide-x divide-divider">
+              <div className="flex flex-col items-center gap-1 py-4">
+                <span className="text-xs text-default-400 uppercase tracking-wide">
+                  Edad
                 </span>
-              </p>
-            </div>
-            <div className="flex flex-col items-center gap-1 py-4">
-              <span className="text-xs text-default-400 uppercase tracking-wide">
-                Peso
-              </span>
-              <p className="text-xl font-medium leading-none mt-1">
-                {pet.data?.weight}
-                <span className="text-sm font-normal text-default-500 ml-1">
-                  kg
+                <p className="text-xl font-medium leading-none mt-1">
+                  {pet.data?.age}
+                  <span className="text-sm font-normal text-default-500 ml-1">
+                    años
+                  </span>
+                </p>
+              </div>
+              <div className="flex flex-col items-center gap-1 py-4">
+                <span className="text-xs text-default-400 uppercase tracking-wide">
+                  Peso
                 </span>
-              </p>
+                <p className="text-xl font-medium leading-none mt-1">
+                  {pet.data?.weight}
+                  <span className="text-sm font-normal text-default-500 ml-1">
+                    kg
+                  </span>
+                </p>
+              </div>
+              <div className="flex flex-col items-center gap-1 py-4">
+                <span className="text-xs text-default-400 uppercase tracking-wide">
+                  Sexo
+                </span>
+                <p className="text-xl font-medium leading-none mt-1">
+                  {pet.data?.sex === "male" ? "♂ Macho" : "♀ Hembra"}
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col items-center gap-1 py-4">
-              <span className="text-xs text-default-400 uppercase tracking-wide">
-                Sexo
-              </span>
-              <p className="text-xl font-medium leading-none mt-1">
-                {pet.data?.sex === "male" ? "♂ Macho" : "♀ Hembra"}
-              </p>
+          </Card.Content>
+        </Card>
+
+        <Card className="mb-4 overflow-hidden">
+          <Card.Header className="flex-col items-center gap-3 bg-default-50 border-b border-divider pb-5 pt-5">
+            <Card.Title>Dueño</Card.Title>
+            <Avatar className="size-18">
+              <Avatar.Image alt={pet.data?.name} src={pet.data?.owner.photo} />
+              <Avatar.Fallback>
+                {initialName(pet.data?.owner.name)}
+              </Avatar.Fallback>
+            </Avatar>
+            <div className="flex flex-col items-center gap-1">
+              <Card.Title className="text-lg">
+                {pet.data?.owner.name}
+              </Card.Title>
+              <p className="text-sm text-zinc-500">{pet.data?.owner.phone}</p>
             </div>
-          </div>
-        </Card.Content>
-      </Card>
+          </Card.Header>
+
+          <Card.Content className="p-0">
+            <div className="grid grid-cols-2 divide-x divide-divider">
+              <div className="flex flex-col items-center gap-1 py-4">
+                <span className="text-xs text-default-400 uppercase tracking-wide">
+                  Direccion
+                </span>
+                <p className="text-sm font-medium leading-none mt-1">
+                  {pet.data?.owner.address}
+                </p>
+              </div>
+              <div className="flex flex-col items-center gap-1 py-4">
+                <span className="text-xs text-default-400 uppercase tracking-wide">
+                  Correo
+                </span>
+                <p className="text-sm font-medium leading-none mt-1">
+                  {pet.data?.owner.email}
+                </p>
+              </div>
+            </div>
+          </Card.Content>
+        </Card>
+      </div>
+
+      <Tabs className="w-full max-w-lg mb-4">
+        <Tabs.ListContainer>
+          <Tabs.List
+            aria-label="Options"
+            className="w-fit *:h-6 *:w-fit *:px-3 *:text-sm *:font-normal *:data-[selected=true]:text-accent-foreground"
+          >
+            <Tabs.Tab id="daily">
+              Consultas
+              <Tabs.Indicator className="bg-zinc-900" />
+            </Tabs.Tab>
+            <Tabs.Tab id="weekly">
+              Vacunas
+              <Tabs.Indicator className="bg-zinc-900" />
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs.ListContainer>
+      </Tabs>
+
       <TableClinicalHistory
         actionButtons={[
           {

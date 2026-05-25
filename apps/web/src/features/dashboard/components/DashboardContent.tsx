@@ -1,6 +1,6 @@
 import { PageContainer } from "@/src/components/PageContainer";
 import { useAuthStore } from "@/src/store/auth.store";
-import { Avatar, Chip } from "@heroui/react";
+import { Avatar, Chip, Table } from "@heroui/react";
 import {
   User,
   CreditCard,
@@ -16,6 +16,7 @@ import { useTotalTodayAppointments } from "../hooks/useTotalTodayAppointments";
 import { useMontlyIncome } from "../hooks/useMonthlyIncome";
 import { useRouter } from "next/navigation";
 import { initialName } from "@/src/utilities/initials-name";
+import { Span } from "next/dist/trace";
 
 interface StatCardProps {
   title: string;
@@ -26,14 +27,16 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon, colorClass }: StatCardProps) {
   return (
-    <div className="bg-default-100 rounded-xl p-4">
+    <div className="bg-white rounded-xl p-4 border border-zinc-200 shadow-xs">
       <div
         className={`w-9 h-9 rounded-lg ${colorClass} flex items-center justify-center mb-3`}
       >
         {icon}
       </div>
-      <p className="text-xs text-default-500 mb-1">{title}</p>
-      <p className="text-2xl font-medium">{value}</p>
+      <p className="text-[12px] font-bold text-zinc-500 mb-1 uppercase">
+        {title}
+      </p>
+      <p className="text-3xl font-bold">{value}</p>
     </div>
   );
 }
@@ -46,6 +49,8 @@ const activities = [
     owner: "Juan Pérez",
     time: "5 min",
     type: "nueva",
+    petImage:
+      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=100&h=100&fit=crop",
   },
   {
     id: 2,
@@ -54,6 +59,8 @@ const activities = [
     owner: "María García",
     time: "1 h",
     type: "completada",
+    petImage:
+      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=100&h=100&fit=crop",
   },
   {
     id: 3,
@@ -62,13 +69,26 @@ const activities = [
     owner: "Carlos López",
     time: "2 h",
     type: "cancelada",
+    petImage:
+      "https://images.unsplash.com/photo-1552053831-71594a27632d?w=100&h=100&fit=crop",
+  },
+  {
+    id: 4,
+    action: "Reserva cancelada",
+    pet: "Doki",
+    owner: "Lucas Ontaneda",
+    time: "3 h",
+    type: "pendiente",
+    petImage:
+      "https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=100&h=100&fit=crop",
   },
 ];
 
 const dotColors: Record<string, string> = {
-  nueva: "bg-primary",
-  completada: "bg-success",
-  cancelada: "bg-danger",
+  nueva: "border bg-sky-50 border-sky-600 text-sky-600",
+  completada: "border bg-green-50 border-green-600 text-green-600",
+  cancelada: "border bg-red-50 border-red-600 text-red-600",
+  pendiente: "border bg-amber-50 border-amber-600 text-amber-600",
 };
 
 function UserWelcome() {
@@ -76,7 +96,7 @@ function UserWelcome() {
   const name = user?.email?.split("@")[0] || "Usuario";
 
   return (
-    <div className="bg-content1 border border-default-200 rounded-xl p-4 flex items-center justify-between">
+    <div className=" border border-default-200 rounded-xl p-4 flex items-center justify-between bg-white shadow-xs">
       <div className="flex items-center gap-3">
         <Avatar>
           <Avatar.Image alt="John Doe" src={user?.email} />
@@ -97,27 +117,42 @@ function UserWelcome() {
 
 function RecentActivity() {
   return (
-    <div className="bg-content1 border border-default-200 rounded-xl p-4">
-      <p className="text-sm font-medium mb-3">Actividad reciente</p>
-      <div className="space-y-2">
-        {activities.map((a) => (
-          <div
-            key={a.id}
-            className="flex items-center justify-between p-2.5 rounded-lg bg-default-50"
-          >
-            <div className="flex items-center gap-2.5">
-              <div className={`w-2 h-2 rounded-full ${dotColors[a.type]}`} />
-              <div>
-                <p className="text-sm font-medium">{a.action}</p>
-                <p className="text-xs text-default-500">
-                  {a.pet} · {a.owner}
-                </p>
-              </div>
-            </div>
-            <span className="text-xs text-default-400">{a.time}</span>
-          </div>
-        ))}
-      </div>
+    <div className="bg-white border border-zinc-200  shadow-xs rounded-xl">
+      <p className="text-sm font-medium  p-4">Actividad reciente</p>
+      <Table className="rounded-b-xl rounded-t-none">
+        <Table.ScrollContainer>
+          <Table.Content aria-label="Team members">
+            <Table.Header>
+              <Table.Column>Foto</Table.Column>
+              <Table.Column isRowHeader>Mascota</Table.Column>
+              <Table.Column>Dueño</Table.Column>
+              <Table.Column>Estdo</Table.Column>
+            </Table.Header>
+            <Table.Body>
+              {activities.map((a) => (
+                <Table.Row key={a.id}>
+                  <Table.Cell>
+                    <Avatar size="sm">
+                      <Avatar.Image src={a.petImage} />
+                      <Avatar.Fallback>{initialName(a.pet)}</Avatar.Fallback>
+                    </Avatar>
+                  </Table.Cell>
+
+                  <Table.Cell>{a.pet}</Table.Cell>
+                  <Table.Cell>{a.owner}</Table.Cell>
+                  <Table.Cell>
+                    <span
+                      className={`${dotColors[a.type]}  px-2 py-1 rounded-full text-xs `}
+                    >
+                      {a.type}
+                    </span>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Content>
+        </Table.ScrollContainer>
+      </Table>
     </div>
   );
 }
@@ -146,7 +181,7 @@ function QuickActions() {
   ];
 
   return (
-    <div className="bg-content1 border border-default-200 rounded-xl p-4">
+    <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-xs">
       <p className="text-sm font-medium mb-3">Acciones rápidas</p>
       <div className="flex flex-col gap-2">
         {actions.map((a) => (
@@ -186,19 +221,21 @@ export function DashboardContent() {
             colorClass="bg-blue-600/10"
           />
           <StatCard
-            title="Clientes"
+            title="Total Clientes"
             value={customers ?? 0}
             icon={<User width={18} height={18} className="text-green-600" />}
             colorClass="bg-green-600/10 "
           />
+
           <StatCard
-            title="Mascotas"
+            title="Total Mascotas"
             value={pets ?? 0}
             icon={<Bone width={18} height={18} className="text-amber-600" />}
             colorClass="bg-amber-600/10 "
           />
+
           <StatCard
-            title="Ingresos mes"
+            title="Total Ingresos mes (USD)"
             value={monthlyIncome ?? 0}
             icon={
               <CreditCard width={18} height={18} className="text-indigo-600" />
